@@ -20,3 +20,25 @@ exports.zeroShotCategorize = async (req, res) => {
     res.status(500).json({ error: 'Failed to categorize transaction' });
   }
 };
+
+// One-shot prompting
+exports.oneShotCategorize = async (req, res) => {
+  const { transaction } = req.body;
+  try {
+    const prompt = `
+      Categorize the following financial transaction into one of these categories: Food, Transport, Bills, Entertainment, Other.
+      
+      Example:
+      Transaction: Uber $12.00
+      Category: Transport
+      
+      Transaction: ${transaction}
+      Return only the category name.
+    `;
+    const result = await model.generateContent(prompt);
+    const category = result.response.text().trim();
+    res.json({ category });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to categorize transaction' });
+  }
+};
