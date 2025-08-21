@@ -68,3 +68,32 @@ exports.multiShotCategorize = async (req, res) => {
     res.status(500).json({ error: 'Failed to categorize transaction' });
   }
 };
+
+
+// Dynamic prompting
+exports.dynamicCategorize = async (req, res) => {
+  const { transaction, amount, date } = req.body;
+  try {
+    const prompt = `
+      Categorize the following financial transaction into one of these categories: Food, Transport, Bills, Entertainment, Other.
+      Provide the category and a brief reason based on the transaction details.
+      
+      Transaction Details:
+      Description: ${transaction}
+      Amount: $${parseFloat(amount).toFixed(2)}
+      Date: ${date}
+      
+      Return the response in this format:
+      Category: <category>
+      Reason: <reason>
+    `;
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text().trim();
+    const [categoryLine, ...reasonLines] = responseText.split('\n');
+    const category = categoryLine.replace('Category: ', '').trim();
+    const reason = reasonLines.join(' ').replace('Reason: ', '').trim();
+    res.json({ category, reason });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to categorize transaction' });
+  }
+};
