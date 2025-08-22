@@ -17,4 +17,7 @@ router.post('/dynamic', geminiController.dynamicCategorize);
 // Embedding Similarity
 router.post('/similarity', geminiController.categorizeWithSimilarity);
 
+// CoT Prompting 
+router.post('/cot', geminiController.cotCategorize);
+
 module.exports = router;
