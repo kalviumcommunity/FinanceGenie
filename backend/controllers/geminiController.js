@@ -98,3 +98,42 @@ exports.dynamicCategorize = async (req, res) => {
   }
 };
 
+// Embeddings and similarity
+exports.categorizeWithSimilarity = async (req, res) => {
+  const { transaction } = req.body;
+
+  try {
+    const categoryExamples = {
+      Food: 'Groceries, restaurants, cafes, food delivery, snacks, drinks',
+      Transport: 'Taxi rides, Uber, bus tickets, fuel purchase, metro pass',
+      Bills: 'Electricity bill, water bill, internet subscription, phone recharge',
+      Entertainment: 'Netflix, Spotify, movies, concerts, gaming, theme parks',
+      Other: 'General shopping, random purchases, miscellaneous spending'
+    };
+
+    // Create embedding model
+    const embeddingModel = genAI.getGenerativeModel({ model: "text-embedding-004" });
+
+    // Embed the transaction
+    const transactionEmbedding = await embeddingModel.embedContent(transaction);
+
+    let maxSimilarity = -1;
+    let bestCategory = 'Other';
+
+    // Compare against each example
+    for (const [category, example] of Object.entries(categoryExamples)) {
+      const categoryEmbedding = await embeddingModel.embedContent(example);
+      const similarity = cosineSimilarity(transactionEmbedding.embedding.values, categoryEmbedding.embedding.values);
+
+      if (similarity > maxSimilarity) {
+        maxSimilarity = similarity;
+        bestCategory = category;
+      }
+    }
+
+    res.json({ category: bestCategory, similarity: maxSimilarity });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to categorize transaction' });
+}
+};
