@@ -1,5 +1,6 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
+const { cosineSimilarity } = require("../utils/similarity");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
@@ -69,7 +70,6 @@ exports.multiShotCategorize = async (req, res) => {
   }
 };
 
-
 // Dynamic prompting
 exports.dynamicCategorize = async (req, res) => {
   const { transaction, amount, date } = req.body;
@@ -97,3 +97,4 @@ exports.dynamicCategorize = async (req, res) => {
     res.status(500).json({ error: 'Failed to categorize transaction' });
   }
 };
+

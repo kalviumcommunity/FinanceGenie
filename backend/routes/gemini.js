@@ -14,4 +14,6 @@ router.post('/multi-shot', geminiController.multiShotCategorize);
 // Dynamic Prompting 
 router.post('/dynamic', geminiController.dynamicCategorize);
 
+
+
 module.exports = router;
